@@ -68,11 +68,20 @@ jobs:
               sudo systemctl enable nginx
             fi
 
-            # Atomically swap in the new build
-            sudo mkdir -p /home/ec2-user/production/ride1
-            sudo rm -rf /home/ec2-user/production/ride1/dist
-            sudo mv /home/ec2-user/ride1-staging/dist /home/ec2-user/production/ride1/dist
-            sudo chown -R ec2-user:ec2-user /home/ec2-user/production/ride1
+            # Atomically swap in the new build. The SPA must live OUTSIDE
+            # /home/ec2-user because that directory is 0700 on Amazon Linux
+            # and the nginx worker user cannot traverse it. Use
+            # /usr/share/nginx/html, which is already world-readable and part
+            # of nginx's default search tree.
+            sudo mkdir -p /usr/share/nginx/html/ride1
+            sudo rm -rf /usr/share/nginx/html/ride1/dist
+            sudo mv /home/ec2-user/ride1-staging/dist /usr/share/nginx/html/ride1/dist
+            sudo chown -R nginx:nginx /usr/share/nginx/html/ride1
+
+            # Clean up the orphan from the earlier (failed) deploy that tried
+            # to serve from /home/ec2-user/production/ride1. Harmless if the
+            # path doesn't exist.
+            sudo rm -rf /home/ec2-user/production/ride1
 
             # Replace any pre-existing nginx site configs on :80. The previous
             # ride0 deployment installed wingz-api.conf which proxied EVERY
