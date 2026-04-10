@@ -61,15 +61,12 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
-            # One-time install (idempotent)
+            # One-time install (idempotent — no-op on hosts where nginx is
+            # already present, like the current EC2 box).
             if ! command -v nginx >/dev/null 2>&1; then
               sudo dnf install -y nginx
               sudo systemctl enable nginx
             fi
-
-            # Remove any stale port 80 → 8000 forwarding rule left from the
-            # previous deployment. Safe to run even if no rule exists.
-            sudo iptables -t nat -F PREROUTING || true
 
             # Atomically swap in the new build
             sudo mkdir -p /home/ec2-user/production/ride1
@@ -77,11 +74,15 @@ jobs:
             sudo mv /home/ec2-user/ride1-staging/dist /home/ec2-user/production/ride1/dist
             sudo chown -R ec2-user:ec2-user /home/ec2-user/production/ride1
 
-            # Install the nginx site config
+            # Replace any pre-existing nginx site configs on :80. The previous
+            # ride0 deployment installed wingz-api.conf which proxied EVERY
+            # path to gunicorn — the new wingz.conf serves the SPA on / and
+            # only proxies /api/ to gunicorn. Both files declaring "listen 80"
+            # would make nginx -t fail, so we remove the old one explicitly.
+            sudo rm -f /etc/nginx/conf.d/wingz-api.conf
+            sudo rm -f /etc/nginx/conf.d/default.conf
             sudo cp /home/ec2-user/ride1-staging/deploy/nginx-wingz.conf \
                     /etc/nginx/conf.d/wingz.conf
-            # Disable the default welcome server if Amazon Linux shipped one
-            sudo rm -f /etc/nginx/conf.d/default.conf
 
             # Validate and reload — fail loudly if the config is bad
             sudo nginx -t
@@ -90,7 +91,11 @@ jobs:
             # Clean up staging dir
             rm -rf /home/ec2-user/ride1-staging
 
-            # Smoke test both the frontend and the proxied API
-            curl -sf http://localhost/ -o /dev/null -w "FRONTEND %{http_code}\n"
-            curl -sf -u admin@wingz.com:adminpass123 \
+            # Smoke test from inside the box. Django's ALLOWED_HOSTS accepts
+            # the public IP but not "localhost", so we send an explicit Host
+            # header matching EC2_HOST_PROD to simulate real user traffic.
+            curl -sf -H "Host: ${{ secrets.EC2_HOST_PROD }}" \
+              http://localhost/ -o /dev/null -w "FRONTEND %{http_code}\n"
+            curl -sf -H "Host: ${{ secrets.EC2_HOST_PROD }}" \
+              -u admin@wingz.com:adminpass123 \
               http://localhost/api/rides/ -o /dev/null -w "API %{http_code}\n"
