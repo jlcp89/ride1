@@ -23,6 +23,25 @@ function formatPickupTime(iso) {
   return d.toLocaleString()
 }
 
+function EventsCell({ events }) {
+  if (!events?.length) return '0'
+  return (
+    <details className="events-details">
+      <summary>{events.length}</summary>
+      <ul className="events-list">
+        {events.map((ev, i) => (
+          <li key={i}>
+            <span className="events-list__desc">{ev.description}</span>
+            <span className="events-list__time">
+              {formatPickupTime(ev.created_at)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </details>
+  )
+}
+
 function fullName(user) {
   if (!user) return '—'
   return `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || '—'
@@ -58,7 +77,9 @@ export default function RideTable({ rides }) {
             </td>
             <td>{fullName(ride.id_driver)}</td>
             <td>{formatPickupTime(ride.pickup_time)}</td>
-            <td>{ride.todays_ride_events?.length ?? 0}</td>
+            <td>
+              <EventsCell events={ride.todays_ride_events} />
+            </td>
           </tr>
         ))}
       </tbody>

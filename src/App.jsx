@@ -26,6 +26,8 @@ export default function App() {
   const [status, setStatus] = useState('')
   const [riderEmail, setRiderEmail] = useState('')
   const [sortBy, setSortBy] = useState('')
+  const [latitude, setLatitude] = useState('')
+  const [longitude, setLongitude] = useState('')
 
   // Validate any token we have sitting in localStorage when the app mounts.
   useEffect(() => {
@@ -61,6 +63,10 @@ export default function App() {
       if (status) params.status = status
       if (riderEmail) params.rider_email = riderEmail
       if (sortBy) params.sort_by = sortBy
+      if (sortBy === 'distance') {
+        if (latitude !== '') params.latitude = latitude
+        if (longitude !== '') params.longitude = longitude
+      }
       const data = await fetchRides(params)
       setRides(data.results || [])
       setCount(data.count || 0)
@@ -133,7 +139,28 @@ export default function App() {
         <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
           <option value="">No sorting</option>
           <option value="pickup_time">Pickup Time</option>
+          <option value="distance">Distance</option>
         </select>
+        {sortBy === 'distance' && (
+          <>
+            <input
+              type="number"
+              step="any"
+              placeholder="Latitude"
+              value={latitude}
+              onChange={(e) => setLatitude(e.target.value)}
+              className="filters__gps"
+            />
+            <input
+              type="number"
+              step="any"
+              placeholder="Longitude"
+              value={longitude}
+              onChange={(e) => setLongitude(e.target.value)}
+              className="filters__gps"
+            />
+          </>
+        )}
         <button type="submit" disabled={loading}>
           Search
         </button>
