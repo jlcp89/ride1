@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { CloseIcon, MapPinIcon } from './icons'
+import MapPointPicker from './MapPointPicker'
 
 function countActive({ status, riderEmail, sortBy, latitude, longitude }) {
   let n = 0
@@ -263,6 +264,27 @@ export default function FilterBar({
             </p>
           )}
         </div>
+
+        {sortBy === 'distance' && (
+          <div className="filter-bar__map">
+            <MapPointPicker
+              mode="single"
+              value={(() => {
+                if (latitude === '' || longitude === '') return null
+                const lat = Number(latitude)
+                const lng = Number(longitude)
+                if (Number.isNaN(lat) || Number.isNaN(lng)) return null
+                return { lat, lng }
+              })()}
+              onChange={(point) => {
+                setLatitude(point.lat.toFixed(5), { push: false })
+                setLongitude(point.lng.toFixed(5), { push: false })
+                setPageStr('1', { push: false })
+              }}
+              height={220}
+            />
+          </div>
+        )}
       </section>
 
       <ActiveChips

@@ -1,3 +1,6 @@
+import DateTimeField from './DateTimeField'
+import MapPointPicker from './MapPointPicker'
+
 /**
  * Pure presentation for the ride CRUD form. No API calls, no submission
  * state — just controlled inputs + per-field error display.
@@ -20,7 +23,7 @@ const STATUS_OPTIONS = [
 
 function userLabel(u) {
   const name = `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email
-  return `${name} (${u.role}) — ${u.email}`
+  return `${name} — ${u.email}`
 }
 
 function FieldError({ msg }) {
@@ -51,24 +54,15 @@ function UserSelect({ id, label, value, onChange, users, disabled, error }) {
   )
 }
 
-function CoordInput({ id, label, value, onChange, disabled, error, min, max }) {
-  return (
-    <label className="drawer__form-field">
-      <span>{label}</span>
-      <input
-        id={id}
-        type="number"
-        step="any"
-        min={min}
-        max={max}
-        value={value ?? ''}
-        onChange={(e) => onChange(e.target.value)}
-        disabled={disabled}
-        required
-      />
-      <FieldError msg={error} />
-    </label>
-  )
+// Convert form-state strings → MapPointPicker { lat, lng } | null.
+function pointFromValues(latStr, lngStr) {
+  if (latStr === '' || latStr == null || lngStr === '' || lngStr == null) {
+    return null
+  }
+  const lat = Number(latStr)
+  const lng = Number(lngStr)
+  if (Number.isNaN(lat) || Number.isNaN(lng)) return null
+  return { lat, lng }
 }
 
 export default function RideFormFields({
@@ -79,6 +73,31 @@ export default function RideFormFields({
   disabled = false,
 }) {
   const field = (name) => (v) => onChange(name, v)
+
+  // Map's onChange unpacks {lat, lng} into the form's two scalar fields.
+  // React 19 batches these so both apply in a single render.
+  function handleMapChange(which, point) {
+    if (which === 'pickup') {
+      onChange('pickup_latitude', String(point.lat))
+      onChange('pickup_longitude', String(point.lng))
+    } else if (which === 'dropoff') {
+      onChange('dropoff_latitude', String(point.lat))
+      onChange('dropoff_longitude', String(point.lng))
+    }
+  }
+
+  const pickup = pointFromValues(values.pickup_latitude, values.pickup_longitude)
+  const dropoff = pointFromValues(values.dropoff_latitude, values.dropoff_longitude)
+
+  // Aggregate any backend per-field error from the four coordinate fields
+  // into a single message under the map (the map itself doesn't have a
+  // single "field" prefix the backend can target).
+  const coordError =
+    errors.pickup_latitude ||
+    errors.pickup_longitude ||
+    errors.dropoff_latitude ||
+    errors.dropoff_longitude ||
+    null
 
   return (
     <div className="drawer__form">
@@ -104,7 +123,7 @@ export default function RideFormFields({
         label="Rider"
         value={values.id_rider}
         onChange={field('id_rider')}
-        users={users}
+        users={users.filter((u) => u.role === 'rider')}
         disabled={disabled}
         error={errors.id_rider}
       />
@@ -114,69 +133,31 @@ export default function RideFormFields({
         label="Driver"
         value={values.id_driver}
         onChange={field('id_driver')}
-        users={users}
+        users={users.filter((u) => u.role === 'driver')}
         disabled={disabled}
         error={errors.id_driver}
       />
 
-      <label className="drawer__form-field">
-        <span>Pickup time</span>
-        <input
-          type="datetime-local"
-          value={values.pickup_time || ''}
-          onChange={(e) => field('pickup_time')(e.target.value)}
-          disabled={disabled}
-          required
-        />
-        <FieldError msg={errors.pickup_time} />
-      </label>
+      <DateTimeField
+        id="ride-form-pickup-time"
+        label="Pickup time"
+        value={values.pickup_time}
+        onChange={field('pickup_time')}
+        disabled={disabled}
+        error={errors.pickup_time}
+      />
 
-      <div className="drawer__form-section-title">Pickup location</div>
-      <div className="drawer__form-grid">
-        <CoordInput
-          id="ride-form-pickup-lat"
-          label="Latitude"
-          value={values.pickup_latitude}
-          onChange={field('pickup_latitude')}
+      <div className="drawer__form-field">
+        <span>Pickup &amp; Dropoff locations</span>
+        <MapPointPicker
+          mode="dual"
+          pickup={pickup}
+          dropoff={dropoff}
+          onChange={handleMapChange}
           disabled={disabled}
-          error={errors.pickup_latitude}
-          min={-90}
-          max={90}
+          height={260}
         />
-        <CoordInput
-          id="ride-form-pickup-lng"
-          label="Longitude"
-          value={values.pickup_longitude}
-          onChange={field('pickup_longitude')}
-          disabled={disabled}
-          error={errors.pickup_longitude}
-          min={-180}
-          max={180}
-        />
-      </div>
-
-      <div className="drawer__form-section-title">Dropoff location</div>
-      <div className="drawer__form-grid">
-        <CoordInput
-          id="ride-form-dropoff-lat"
-          label="Latitude"
-          value={values.dropoff_latitude}
-          onChange={field('dropoff_latitude')}
-          disabled={disabled}
-          error={errors.dropoff_latitude}
-          min={-90}
-          max={90}
-        />
-        <CoordInput
-          id="ride-form-dropoff-lng"
-          label="Longitude"
-          value={values.dropoff_longitude}
-          onChange={field('dropoff_longitude')}
-          disabled={disabled}
-          error={errors.dropoff_longitude}
-          min={-180}
-          max={180}
-        />
+        <FieldError msg={coordError} />
       </div>
     </div>
   )

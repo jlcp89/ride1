@@ -196,6 +196,13 @@
   color: var(--c-error-fg);
 }
 
+.filter-bar__map {
+  grid-column: 1 / -1;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--c-border);
+}
+
 @media (max-width: 900px) {
   .filter-bar {
     grid-template-columns: 1fr;

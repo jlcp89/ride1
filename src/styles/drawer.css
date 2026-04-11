@@ -18,14 +18,44 @@
   top: 0;
   right: 0;
   width: min(520px, 95vw);
+  /* 100vh = layout viewport (can be larger than visible area on Linux/Wayland
+     or when DevTools is docked at the bottom). 100dvh = dynamic viewport, the
+     actual visible area. The cascade picks dvh in browsers that support it
+     (Chrome 108+, FF 101+, Safari 15.4+) and falls back to vh otherwise. */
   height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
   background: var(--c-bg-surface);
   border-left: 1px solid var(--c-border);
   box-shadow: var(--shadow-lg);
   z-index: var(--z-drawer);
-  display: flex;
-  flex-direction: column;
+  /* Single-scroll layout: the drawer itself is the scroll container. Header
+     and footer are position:sticky so they stay visible while the body
+     content scrolls. This unifies both view-mode (RideDetailDrawer) and
+     edit-mode (RideEditPanel) drawers under one robust pattern instead of
+     relying on flex sizing that breaks on certain viewport configs. */
+  display: block;
+  overflow-y: auto;
+  overflow-x: hidden;
   animation: drawer-slide-in var(--t-base) var(--ease);
+}
+
+/* Sticky header — applies in both view (.drawer > .drawer__header) and form
+   (.drawer__form-wrap > .drawer__header) contexts. Sticky positioning works
+   because .drawer is the scroll container in both cases (the form-wrap is a
+   plain block element child of .drawer in the new layout). */
+.drawer .drawer__header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--c-bg-surface);
+}
+
+.drawer .drawer__actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: var(--c-bg-surface);
 }
 
 @keyframes drawer-slide-in {
@@ -80,8 +110,8 @@
 }
 
 .drawer__body {
-  flex: 1;
-  overflow-y: auto;
+  /* Plain block now — .drawer is the scroll container, body is just normal
+     content flow between the sticky header and sticky footer. */
   padding: var(--space-5);
   display: flex;
   flex-direction: column;
@@ -280,10 +310,11 @@
 /* ---------- CRUD form inside the drawer ---------- */
 
 .drawer__form-wrap {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
+  /* Plain block container. .drawer is the scroll container. The header and
+     footer inside this form get their sticky behavior from the
+     `.drawer .drawer__header` / `.drawer .drawer__actions` rules above. */
+  display: block;
+  width: 100%;
 }
 
 .drawer__form {

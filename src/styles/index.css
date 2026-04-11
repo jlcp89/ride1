@@ -1,5 +1,9 @@
 /* Stylesheet entry. Order matters: tokens -> base -> layout -> components. */
 
+/* Third-party CSS first so our component styles can override. */
+@import "leaflet/dist/leaflet.css";
+@import "react-datepicker/dist/react-datepicker.css";
+
 @import "./tokens.css";
 @import "./base.css";
 @import "./layout.css";
@@ -8,3 +12,4 @@
 @import "./table.css";
 @import "./pagination.css";
 @import "./drawer.css";
+@import "./map.css";
