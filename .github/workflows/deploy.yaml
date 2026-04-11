@@ -105,6 +105,14 @@ jobs:
             # header matching EC2_HOST_PROD to simulate real user traffic.
             curl -sf -H "Host: ${{ secrets.EC2_HOST_PROD }}" \
               http://localhost/ -o /dev/null -w "FRONTEND %{http_code}\n"
+            # Backend uses JWT Bearer auth (not Basic). Log in to get an
+            # access_token, then use it to hit /api/rides/. python3 parses the
+            # JSON response since jq isn't installed on the EC2 box.
+            TOKEN=$(curl -sf -H "Host: ${{ secrets.EC2_HOST_PROD }}" \
+              -H "Content-Type: application/json" \
+              -d '{"email":"admin@wingz.com","password":"adminpass123"}' \
+              http://localhost/api/auth/login/ \
+              | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')
             curl -sf -H "Host: ${{ secrets.EC2_HOST_PROD }}" \
-              -u admin@wingz.com:adminpass123 \
+              -H "Authorization: Bearer $TOKEN" \
               http://localhost/api/rides/ -o /dev/null -w "API %{http_code}\n"
