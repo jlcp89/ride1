@@ -182,9 +182,9 @@
   filter: brightness(0.95);
 }
 
-.status-chip--pickup {
-  background: var(--c-status-pickup-bg);
-  color: var(--c-status-pickup-fg);
+.status-chip--to-pickup {
+  background: var(--c-status-to-pickup-bg);
+  color: var(--c-status-to-pickup-fg);
 }
 
 .status-chip--en-route {

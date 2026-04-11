@@ -151,7 +151,7 @@ export default function FilterBar({
           >
             <option value="">All statuses</option>
             <option value="en-route">en-route</option>
-            <option value="pickup">pickup</option>
+            <option value="to-pickup">to-pickup</option>
             <option value="dropoff">dropoff</option>
           </select>
         </label>

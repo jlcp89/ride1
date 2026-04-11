@@ -2,7 +2,7 @@ import { SortArrow } from './icons'
 
 const STATUS_CLASS = {
   'en-route': 'status-chip--en-route',
-  pickup: 'status-chip--pickup',
+  'to-pickup': 'status-chip--to-pickup',
   dropoff: 'status-chip--dropoff',
 }
 
