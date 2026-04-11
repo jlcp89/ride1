@@ -13,6 +13,7 @@ import FilterBar from './components/FilterBar'
 import SkeletonTable from './components/SkeletonRow'
 import EmptyState from './components/EmptyState'
 import RideDetailDrawer from './components/RideDetailDrawer'
+import TripsReport from './components/TripsReport'
 import { LogoMark } from './components/icons'
 import { useSearchParamsState } from './hooks/useSearchParamsState'
 import { useDebouncedValue } from './hooks/useDebouncedValue'
@@ -26,7 +27,7 @@ function initials(user) {
   return (user.email || '?').charAt(0).toUpperCase()
 }
 
-function AppHeader({ user, onLogout }) {
+function AppHeader({ user, onLogout, section }) {
   return (
     <header className="app-header">
       <div className="app-header__brand">
@@ -35,7 +36,7 @@ function AppHeader({ user, onLogout }) {
         </div>
         <div className="app-header__wordmark">
           <span className="app-header__title">Wingz Admin</span>
-          <span className="app-header__section">Rides</span>
+          <span className="app-header__section">{section}</span>
         </div>
       </div>
       <div className="app-header__user">
@@ -81,6 +82,7 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [drawerRideId, setDrawerRideId] = useState(null)
+  const [view, setView] = useState('rides')
 
   // Auth bootstrap on mount.
   useEffect(() => {
@@ -162,6 +164,11 @@ export default function App() {
     setPageStr(String(p))
   }
 
+  const handleSessionExpired = useCallback(() => {
+    setCurrentUser(null)
+    setSessionFlash('Your session expired — please sign in again.')
+  }, [])
+
   if (authChecking) {
     return (
       <div className="app">
@@ -184,88 +191,117 @@ export default function App() {
 
   return (
     <div className="app">
-      <AppHeader user={currentUser} onLogout={handleLogout} />
-
-      <FilterBar
-        values={{
-          status,
-          riderEmailRaw,
-          sortBy,
-          latitude,
-          longitude,
-          pageSize,
-        }}
-        setters={{
-          setStatus,
-          setRiderEmailRaw,
-          setSortBy,
-          setLatitude,
-          setLongitude,
-          setPageStr,
-          setPageSizeStr,
-        }}
-        onClearAll={clearAll}
-        loading={loading}
+      <AppHeader
+        user={currentUser}
+        onLogout={handleLogout}
+        section={view === 'rides' ? 'Rides' : 'Reports'}
       />
 
-      {error && (
-        <div className="banner-error" role="alert">
-          <span>{error}</span>
-          <div className="banner-error__actions">
-            <button type="button" onClick={load}>
-              Retry
-            </button>
-            <button type="button" onClick={() => setError('')}>
-              Dismiss
-            </button>
-          </div>
-        </div>
-      )}
+      <nav className="app-nav" aria-label="Primary">
+        <button
+          type="button"
+          className={`app-nav__tab${view === 'rides' ? ' is-active' : ''}`}
+          onClick={() => setView('rides')}
+          aria-pressed={view === 'rides'}
+        >
+          Rides
+        </button>
+        <button
+          type="button"
+          className={`app-nav__tab${view === 'reports' ? ' is-active' : ''}`}
+          onClick={() => setView('reports')}
+          aria-pressed={view === 'reports'}
+        >
+          Reports
+        </button>
+      </nav>
 
-      {loading ? (
-        <SkeletonTable count={pageSize} />
-      ) : rides.length === 0 && !error ? (
-        <EmptyState
-          actionLabel={
-            status || riderEmailRaw || sortBy ? 'Clear filters' : undefined
-          }
-          onAction={status || riderEmailRaw || sortBy ? clearAll : undefined}
-        />
-      ) : (
+      {view === 'rides' ? (
         <>
-          <RideTable
-            rides={rides}
-            sortBy={sortBy}
-            onSortBy={(v) => {
-              setSortBy(v)
-              setPageStr('1')
+          <FilterBar
+            values={{
+              status,
+              riderEmailRaw,
+              sortBy,
+              latitude,
+              longitude,
+              pageSize,
             }}
-            onFilterStatus={(v) => {
-              setStatus(v)
-              setPageStr('1')
+            setters={{
+              setStatus,
+              setRiderEmailRaw,
+              setSortBy,
+              setLatitude,
+              setLongitude,
+              setPageStr,
+              setPageSizeStr,
             }}
-            onFilterRider={(v) => {
-              setRiderEmailRaw(v)
-              setPageStr('1')
-            }}
-            onOpenDrawer={(ride) => setDrawerRideId(ride.id_ride)}
-            selectedId={drawerRideId}
+            onClearAll={clearAll}
+            loading={loading}
           />
-          <Pagination
-            count={count}
-            page={page}
-            pageSize={pageSize}
-            onChange={handlePageChange}
-          />
-        </>
-      )}
 
-      {drawerRideId !== null && (
-        <RideDetailDrawer
-          rideId={drawerRideId}
-          initialRide={rides.find((r) => r.id_ride === drawerRideId)}
-          onClose={() => setDrawerRideId(null)}
-        />
+          {error && (
+            <div className="banner-error" role="alert">
+              <span>{error}</span>
+              <div className="banner-error__actions">
+                <button type="button" onClick={load}>
+                  Retry
+                </button>
+                <button type="button" onClick={() => setError('')}>
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          )}
+
+          {loading ? (
+            <SkeletonTable count={pageSize} />
+          ) : rides.length === 0 && !error ? (
+            <EmptyState
+              actionLabel={
+                status || riderEmailRaw || sortBy ? 'Clear filters' : undefined
+              }
+              onAction={status || riderEmailRaw || sortBy ? clearAll : undefined}
+            />
+          ) : (
+            <>
+              <RideTable
+                rides={rides}
+                sortBy={sortBy}
+                onSortBy={(v) => {
+                  setSortBy(v)
+                  setPageStr('1')
+                }}
+                onFilterStatus={(v) => {
+                  setStatus(v)
+                  setPageStr('1')
+                }}
+                onFilterRider={(v) => {
+                  setRiderEmailRaw(v)
+                  setPageStr('1')
+                }}
+                onOpenDrawer={(ride) => setDrawerRideId(ride.id_ride)}
+                selectedId={drawerRideId}
+              />
+              <Pagination
+                count={count}
+                page={page}
+                pageSize={pageSize}
+                onChange={handlePageChange}
+              />
+            </>
+          )}
+
+          {drawerRideId !== null && (
+            <RideDetailDrawer
+              rideId={drawerRideId}
+              initialRide={rides.find((r) => r.id_ride === drawerRideId)}
+              onClose={() => setDrawerRideId(null)}
+            />
+          )}
+        </>
+      ) : (
+        <TripsReport onSessionExpired={handleSessionExpired} />
       )}
     </div>
   )

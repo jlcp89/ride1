@@ -267,3 +267,48 @@
 }
 
 /* Pagination rules live in pagination.css */
+
+/* App nav — primary tab bar between the header and page body. */
+.app-nav {
+  display: flex;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  border-bottom: 1px solid var(--c-border);
+  margin-bottom: var(--space-4);
+}
+
+.app-nav__tab {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-md);
+  font-weight: 500;
+  color: var(--c-fg-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color var(--t-fast) var(--ease),
+    border-color var(--t-fast) var(--ease);
+}
+
+.app-nav__tab:hover {
+  color: var(--c-fg-primary);
+}
+
+.app-nav__tab.is-active {
+  color: var(--c-accent);
+  border-bottom-color: var(--c-accent);
+}
+
+.app-nav__tab:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Right-aligned numeric cells for the trips report. */
+.ride-table__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

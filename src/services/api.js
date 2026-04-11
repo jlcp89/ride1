@@ -135,3 +135,8 @@ export async function fetchRide(id) {
   const res = await apiFetch(`/rides/${id}/`)
   return res.json()
 }
+
+export async function fetchTripsReport() {
+  const res = await apiFetch('/reports/trips-over-hour/')
+  return res.json()
+}
