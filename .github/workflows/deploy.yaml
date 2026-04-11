@@ -100,19 +100,21 @@ jobs:
             # Clean up staging dir
             rm -rf /home/ec2-user/ride1-staging
 
-            # Smoke test from inside the box. Django's ALLOWED_HOSTS accepts
-            # the public IP but not "localhost", so we send an explicit Host
-            # header matching EC2_HOST_PROD to simulate real user traffic.
-            curl -sf -H "Host: ${{ secrets.EC2_HOST_PROD }}" \
-              http://localhost/ -o /dev/null -w "FRONTEND %{http_code}\n"
-            # Backend uses JWT Bearer auth (not Basic). Log in to get an
-            # access_token, then use it to hit /api/rides/. python3 parses the
-            # JSON response since jq isn't installed on the EC2 box.
-            TOKEN=$(curl -sf -H "Host: ${{ secrets.EC2_HOST_PROD }}" \
+            # Smoke test from inside the box via the public HTTPS URL. DNS
+            # resolves wingz-ride.d3sarrollo.dev back to this same EC2 instance,
+            # and the Let's Encrypt cert is valid for that name — no Host
+            # header hackery needed.
+            curl -sf https://wingz-ride.d3sarrollo.dev/ \
+              -o /dev/null -w "FRONTEND %{http_code}\n"
+            # Backend uses JWT Bearer auth. Log in to get an access_token,
+            # then use it to hit /api/rides/. python3 parses the JSON response
+            # since jq isn't installed on the EC2 box.
+            TOKEN=$(curl -sf \
               -H "Content-Type: application/json" \
               -d '{"email":"admin@wingz.com","password":"adminpass123"}' \
-              http://localhost/api/auth/login/ \
+              https://wingz-ride.d3sarrollo.dev/api/auth/login/ \
               | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')
-            curl -sf -H "Host: ${{ secrets.EC2_HOST_PROD }}" \
+            curl -sf \
               -H "Authorization: Bearer $TOKEN" \
-              http://localhost/api/rides/ -o /dev/null -w "API %{http_code}\n"
+              https://wingz-ride.d3sarrollo.dev/api/rides/ \
+              -o /dev/null -w "API %{http_code}\n"
