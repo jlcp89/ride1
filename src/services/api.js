@@ -130,3 +130,8 @@ export async function fetchRides(params = {}) {
   const res = await apiFetch(`/rides/?${query}`)
   return res.json()
 }
+
+export async function fetchRide(id) {
+  const res = await apiFetch(`/rides/${id}/`)
+  return res.json()
+}

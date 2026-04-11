@@ -1,0 +1,271 @@
+/* Login screen + filter bar + shared form controls. */
+
+/* ---------- Shared control primitives ---------- */
+
+.control {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--c-bg-surface);
+  font-size: var(--fs-md);
+  color: var(--c-fg-primary);
+  transition: border-color var(--t-fast) var(--ease),
+    box-shadow var(--t-fast) var(--ease);
+}
+
+.control:hover {
+  border-color: var(--c-fg-subtle);
+}
+
+.control::placeholder {
+  color: var(--c-fg-subtle);
+}
+
+.control:disabled {
+  background: var(--c-bg-subtle);
+  color: var(--c-fg-subtle);
+  cursor: not-allowed;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: background var(--t-fast) var(--ease),
+    border-color var(--t-fast) var(--ease),
+    color var(--t-fast) var(--ease);
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+  color: #ffffff;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--c-accent-hover);
+  border-color: var(--c-accent-hover);
+}
+
+.btn--secondary {
+  background: var(--c-bg-surface);
+  border-color: var(--c-border-strong);
+  color: var(--c-fg-primary);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background: var(--c-bg-subtle);
+  border-color: var(--c-fg-subtle);
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--c-fg-muted);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background: var(--c-bg-subtle);
+  color: var(--c-fg-primary);
+}
+
+.btn--danger-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--c-error-fg);
+}
+
+.btn--danger-ghost:hover:not(:disabled) {
+  background: var(--c-error-bg);
+}
+
+.btn--sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--fs-sm);
+}
+
+/* Login form rules live in login.css */
+
+/* ---------- Filter bar (new grid layout) ---------- */
+
+.filter-bar {
+  display: grid;
+  grid-template-columns: 180px minmax(220px, 1fr) auto;
+  gap: var(--space-3);
+  align-items: end;
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
+  background: var(--c-bg-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-bar__row-2 {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 180px 140px 140px auto 140px;
+  gap: var(--space-3);
+  align-items: end;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--c-border);
+}
+
+.filter-bar__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.filter-bar__label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--c-fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.filter-bar__label-count {
+  margin-left: var(--space-2);
+  font-weight: 500;
+  color: var(--c-accent-hover);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.filter-bar select,
+.filter-bar input {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--c-bg-surface);
+  font-size: var(--fs-md);
+  color: var(--c-fg-primary);
+  transition: border-color var(--t-fast) var(--ease),
+    box-shadow var(--t-fast) var(--ease);
+  width: 100%;
+  min-width: 0;
+}
+
+.filter-bar select:hover,
+.filter-bar input:hover {
+  border-color: var(--c-fg-subtle);
+}
+
+.filter-bar select:focus,
+.filter-bar input:focus {
+  outline: none;
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px var(--c-accent-tint);
+}
+
+.filter-bar__actions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: end;
+}
+
+.filter-bar__geo-error {
+  grid-column: 1 / -1;
+  margin: var(--space-1) 0 0;
+  font-size: var(--fs-sm);
+  color: var(--c-error-fg);
+}
+
+@media (max-width: 900px) {
+  .filter-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-bar__row-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filter-bar__actions {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ---------- Legacy .filters family (until Step 8 extracts FilterBar) ---------- */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+  background: var(--c-bg-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.filters select,
+.filters input {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--c-bg-surface);
+  font-size: var(--fs-md);
+  color: var(--c-fg-primary);
+  min-width: 160px;
+  transition: border-color var(--t-fast) var(--ease),
+    box-shadow var(--t-fast) var(--ease);
+}
+
+.filters input {
+  flex: 1 1 220px;
+}
+
+.filters input.filters__gps {
+  flex: 0 0 140px;
+  min-width: 120px;
+}
+
+.filters select:hover,
+.filters input:hover {
+  border-color: var(--c-fg-subtle);
+}
+
+.filters select:focus,
+.filters input:focus {
+  outline: none;
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px var(--c-accent-tint);
+}
+
+.filters button {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--c-accent);
+  border-radius: var(--radius-md);
+  background: var(--c-accent);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: var(--fs-md);
+  transition: background var(--t-fast) var(--ease),
+    border-color var(--t-fast) var(--ease);
+}
+
+.filters button:hover:not(:disabled) {
+  background: var(--c-accent-hover);
+  border-color: var(--c-accent-hover);
+}
+
+.filters button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

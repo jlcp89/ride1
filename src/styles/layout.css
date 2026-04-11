@@ -1,0 +1,296 @@
+/* App shell, header, status bar, page states. */
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-6) var(--space-12);
+}
+
+/* Legacy h1 used by current App.jsx until Step 5 extracts AppHeader */
+.app h1 {
+  margin: 0;
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--c-fg-strong);
+  letter-spacing: -0.01em;
+}
+
+/* App header (branded) */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.app-header__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.app-header__wordmark {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.app-header__title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--c-fg-strong);
+  letter-spacing: -0.01em;
+}
+
+.app-header__section {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--c-fg-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.app-header__user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.app-header__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--c-accent-tint);
+  color: var(--c-accent-hover);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.app-header__identity {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  text-align: right;
+}
+
+.app-header__email {
+  font-size: var(--fs-sm);
+  color: var(--c-fg-primary);
+  font-weight: 500;
+}
+
+.app-header__role {
+  font-size: var(--fs-xs);
+  color: var(--c-fg-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.app-header__logout {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--c-bg-surface);
+  color: var(--c-fg-primary);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  transition: background var(--t-fast) var(--ease),
+    border-color var(--t-fast) var(--ease);
+}
+
+.app-header__logout:hover {
+  background: var(--c-bg-subtle);
+  border-color: var(--c-fg-subtle);
+}
+
+/* Status bar — meta row between filters and table */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0 var(--space-3);
+  font-size: var(--fs-sm);
+  color: var(--c-fg-muted);
+}
+
+.status-bar__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.status-bar__dot {
+  color: var(--c-border-strong);
+}
+
+/* Active filter chip row */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+}
+
+.chip-row:empty {
+  display: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px 4px 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--c-accent-tint);
+  color: var(--c-accent-hover);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  border: none;
+  transition: background var(--t-fast) var(--ease);
+}
+
+.chip:hover {
+  background: rgba(37, 99, 235, 0.14);
+}
+
+.chip__x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  color: currentColor;
+  opacity: 0.7;
+}
+
+.chip:hover .chip__x {
+  opacity: 1;
+}
+
+/* Loading / error / empty page states */
+.loading {
+  font-style: italic;
+  color: var(--c-fg-muted);
+  padding: var(--space-4) 0;
+}
+
+.banner-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  margin: 0 0 var(--space-4);
+  color: var(--c-error-fg);
+  background: var(--c-error-bg);
+  border: 1px solid var(--c-error-border);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-md);
+}
+
+.banner-error__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.banner-error button {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--c-error-border);
+  background: var(--c-bg-surface);
+  color: var(--c-error-fg);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+}
+
+.banner-error button:hover {
+  background: var(--c-error-bg);
+}
+
+/* Empty state (used by EmptyState.jsx) */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-10) var(--space-6);
+  text-align: center;
+  background: var(--c-bg-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+}
+
+.empty-state__icon {
+  color: var(--c-fg-subtle);
+  opacity: 0.7;
+}
+
+.empty-state__title {
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--c-fg-strong);
+}
+
+.empty-state__hint {
+  margin: 0;
+  font-size: var(--fs-md);
+  color: var(--c-fg-muted);
+  max-width: 360px;
+}
+
+.empty-state__action {
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--c-accent);
+  background: var(--c-accent);
+  color: #ffffff;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: background var(--t-fast) var(--ease);
+}
+
+.empty-state__action:hover {
+  background: var(--c-accent-hover);
+  border-color: var(--c-accent-hover);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .app {
+    padding: var(--space-5) var(--space-4) var(--space-10);
+  }
+
+  .app-header {
+    flex-wrap: wrap;
+  }
+
+  .status-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
