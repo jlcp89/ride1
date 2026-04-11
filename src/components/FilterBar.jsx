@@ -160,7 +160,7 @@ export default function FilterBar({
           <span className="filter-bar__label">Rider email</span>
           <input
             type="search"
-            placeholder="alice@wingz.com"
+            placeholder="alice@example.com"
             value={riderEmailRaw}
             onChange={changeRider}
             aria-label="Filter by rider email"
