@@ -91,6 +91,17 @@
   background: var(--c-error-bg);
 }
 
+.btn--danger {
+  background: var(--c-error-fg);
+  border-color: var(--c-error-fg);
+  color: #ffffff;
+}
+
+.btn--danger:hover:not(:disabled) {
+  background: #7f1d1d;
+  border-color: #7f1d1d;
+}
+
 .btn--sm {
   padding: var(--space-1) var(--space-3);
   font-size: var(--fs-sm);

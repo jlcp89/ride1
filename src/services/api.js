@@ -140,3 +140,75 @@ export async function fetchTripsReport() {
   const res = await apiFetch('/reports/trips-over-hour/')
   return res.json()
 }
+
+// --- users directory (for rider/driver pickers in the CRUD form) --------
+
+export async function fetchUsers() {
+  const res = await apiFetch('/users/?page_size=100')
+  return res.json() // { count, next, previous, results: [...] }
+}
+
+// --- ride CRUD write paths ------------------------------------------------
+
+export async function createRide(body) {
+  const res = await apiFetch('/rides/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  return res.json()
+}
+
+export async function updateRide(id, body) {
+  const res = await apiFetch(`/rides/${id}/`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  return res.json()
+}
+
+export async function deleteRide(id) {
+  await apiFetch(`/rides/${id}/`, { method: 'DELETE' })
+}
+
+// Backend's custom exception handler flattens DRF ValidationError into
+//   { "error": "pickup_latitude: Ensure ...; id_driver: Rider and driver ..." }
+// (see ride0 rides/exceptions.py::_flatten_validation). apiFetch throws an
+// Error whose message is that flattened string. This helper splits it back
+// into a per-field map so the form can highlight individual inputs. Anything
+// that doesn't start with a known write-field prefix falls back to a banner.
+const WRITE_FIELDS = new Set([
+  'status',
+  'id_rider',
+  'id_driver',
+  'pickup_latitude',
+  'pickup_longitude',
+  'dropoff_latitude',
+  'dropoff_longitude',
+  'pickup_time',
+])
+
+export function parseValidationError(message) {
+  if (!message) return { fieldErrors: {}, banner: null }
+  const fieldErrors = {}
+  const banners = []
+  for (const part of message.split('; ')) {
+    const idx = part.indexOf(': ')
+    if (idx === -1) {
+      banners.push(part)
+      continue
+    }
+    const field = part.slice(0, idx).trim()
+    const msg = part.slice(idx + 2).trim()
+    if (WRITE_FIELDS.has(field)) {
+      fieldErrors[field] = msg
+    } else {
+      banners.push(part)
+    }
+  }
+  return {
+    fieldErrors,
+    banner: banners.length ? banners.join('; ') : null,
+  }
+}

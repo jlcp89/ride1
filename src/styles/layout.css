@@ -294,3 +294,11 @@
     align-items: flex-start;
   }
 }
+
+/* Primary action row above the ride table — holds the "+ New ride" CTA. */
+.table-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin: var(--space-3) 0;
+}

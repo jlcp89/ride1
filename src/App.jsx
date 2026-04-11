@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
   fetchRides,
+  fetchUsers,
   getCurrentUser,
   logout,
   clearTokens,
@@ -13,6 +14,7 @@ import FilterBar from './components/FilterBar'
 import SkeletonTable from './components/SkeletonRow'
 import EmptyState from './components/EmptyState'
 import RideDetailDrawer from './components/RideDetailDrawer'
+import RideCreateDrawer from './components/RideCreateDrawer'
 import TripsReport from './components/TripsReport'
 import { LogoMark } from './components/icons'
 import { useSearchParamsState } from './hooks/useSearchParamsState'
@@ -83,6 +85,8 @@ export default function App() {
   const [error, setError] = useState('')
   const [drawerRideId, setDrawerRideId] = useState(null)
   const [view, setView] = useState('rides')
+  const [users, setUsers] = useState([])
+  const [createOpen, setCreateOpen] = useState(false)
 
   // Auth bootstrap on mount.
   useEffect(() => {
@@ -103,6 +107,22 @@ export default function App() {
     }
     check()
   }, [])
+
+  // Load the users directory once after login — populates the rider/driver
+  // dropdowns in the CRUD form. Errors are swallowed (create/edit stays
+  // disabled until users are available).
+  useEffect(() => {
+    if (!currentUser) return
+    let cancelled = false
+    fetchUsers()
+      .then((data) => {
+        if (!cancelled) setUsers(data.results || [])
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [currentUser])
 
   // Main load: runs whenever any filter/sort/page/page_size changes.
   const load = useCallback(async () => {
@@ -240,6 +260,22 @@ export default function App() {
             loading={loading}
           />
 
+          <div className="table-actions">
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={() => setCreateOpen(true)}
+              disabled={users.length === 0}
+              title={
+                users.length === 0
+                  ? 'Users directory unavailable'
+                  : 'Create a new ride'
+              }
+            >
+              + New ride
+            </button>
+          </div>
+
           {error && (
             <div className="banner-error" role="alert">
               <span>{error}</span>
@@ -296,7 +332,23 @@ export default function App() {
             <RideDetailDrawer
               rideId={drawerRideId}
               initialRide={rides.find((r) => r.id_ride === drawerRideId)}
+              users={users}
               onClose={() => setDrawerRideId(null)}
+              onRideSaved={() => {
+                load()
+              }}
+              onRideDeleted={() => {
+                setDrawerRideId(null)
+                load()
+              }}
+            />
+          )}
+
+          {createOpen && (
+            <RideCreateDrawer
+              users={users}
+              onClose={() => setCreateOpen(false)}
+              onCreated={() => load()}
             />
           )}
         </>
